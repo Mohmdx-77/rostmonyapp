@@ -1,4 +1,4 @@
-const CACHE_NAME = 'money-app-v2';
+const CACHE_NAME = 'money-app-v3';
 const urlsToCache = [
   '/rostmonyapp/',
   '/rostmonyapp/index.html'

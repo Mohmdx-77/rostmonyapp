@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f766e">
+<title>دستیار مالی</title>
+<style>
+  :root {
+    --bg: #f1f5f9;
+    --card: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --input-bg: #f8fafc;
+    --primary: #0f766e;
+    --primary-dark: #115e59;
+    --primary-light: #14b8a6;
+    --income: #059669;
+    --expense: #dc2626;
+    --shadow: 0 2px 6px rgba(0,0,0,0.05);
+    --shadow-lg: 0 4px 14px rgba(15,118,110,0.4);
+  }
+  [data-theme="dark"] {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --border: #334155;
+    --input-bg: #0f172a;
+    --primary: #14b8a6;
+    --primary-dark: #0d9488;
+    --primary-light: #2dd4bf;
+    --shadow: 0 2px 6px rgba(0,0,0,0.3);
+    --shadow-lg: 0 4px 14px rgba(20,184,166,0.5);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { overscroll-behavior-y: contain; }
+  body {
+    font-family: 'Vazirmatn', Tahoma, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 12px;
+    padding-bottom: 90px;
+    min-height: 100vh;
+    transition: background 0.3s, color 0.3s;
+    font-size: 14px;
+  }
+
+  header {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: white;
+    padding: 16px 18px;
+    border-radius: 16px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow-lg);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  header .info h1 { font-size: 17px; font-weight: 700; }
+  header .info .date { font-size: 12px; opacity: 0.9; margin-top: 4px; }
+  header .theme-btn {
+    background: rgba(255,255,255,0.2); border: none; color: white;
+    width: 40px; height: 40px; border-radius: 12px; cursor: pointer;
+    font-size: 18px; display: flex; align-items: center; justify-content: center;
+  }
+
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+  .card {
+    background: var(--card); padding: 14px; border-radius: 14px;
+    box-shadow: var(--shadow);
+  }
+  .card .label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .card .value { font-size: 15px; font-weight: 700; }
+  .card.income .value { color: var(--income); }
+  .card.expense .value { color: var(--expense); }
+  .card.total { grid-column: span 2; background: var(--primary); color: white; }
+  .card.total .label { color: rgba(255,255,255,0.85); }
+  .card.total .value { color: white; font-size: 19px; }
+
+  .tabs-main {
+    display: flex; gap: 4px; margin-bottom: 12px;
+    background: var(--border); padding: 4px; border-radius: 12px;
+    overflow-x: auto;
+  }
+  .tabs-main button {
+    flex: 1; min-width: 70px; padding: 9px 8px; border: none;
+    background: transparent; border-radius: 9px;
+    font-family: inherit; font-size: 12px; cursor: pointer;
+    color: var(--muted); font-weight: 600; white-space: nowrap;
+  }
+  .tabs-main button.active {
+    background: var(--card); color: var(--primary);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  }
+
+  .panel { display: none; }
+  .panel.active { display: block; animation: fadeIn 0.2s; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .section {
+    background: var(--card); border-radius: 14px;
+    padding: 14px; margin-bottom: 12px; box-shadow: var(--shadow);
+  }
+  .section h2 {
+    font-size: 14px; margin-bottom: 12px;
+    color: var(--primary); display: flex; justify-content: space-between; align-items: center;
+  }
+  .section h2 .badge {
+    background: var(--primary); color: white; font-size: 11px;
+    padding: 2px 8px; border-radius: 8px; font-weight: 600;
+  }
+
+  input, select, textarea {
+    width: 100%; padding: 11px 12px; border: 1.5px solid var(--border);
+    border-radius: 10px; font-family: inherit; font-size: 13px;
+    margin-bottom: 10px; background: var(--input-bg); color: var(--text);
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none; border-color: var(--primary-light); background: var(--card);
+  }
+  label { font-size: 12px; color: var(--muted); margin-bottom: 4px; display: block; font-weight: 600; }
+
+  .btn {
+    width: 100%; padding: 12px; border: none; border-radius: 10px;
+    font-family: inherit; font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: 0.15s;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-secondary { background: var(--border); color: var(--text); }
+  .btn-danger { background: var(--expense); color: white; }
+  .btn-outline {
+    background: transparent; color: var(--primary);
+    border: 1.5px solid var(--primary);
+  }
+
+  .row { display: flex; gap: 8px; }
+  .row > * { flex: 1; }
+
+  .list-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 11px 12px; background: var(--input-bg); border-radius: 10px;
+    margin-bottom: 8px; border-right: 4px solid var(--primary-light);
+    gap: 8px;
+  }
+  .list-item.expense { border-right-color: var(--expense); }
+  .list-item.paid { opacity: 0.6; }
+  .list-item.overdue { border-right-color: #f59e0b; background: rgba(245,158,11,0.08); }
+  .list-item .info { flex: 1; min-width: 0; }
+  .list-item .info .title {
+    font-size: 13px; font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .list-item .info .date { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .list-item .amount { font-weight: 700; font-size: 12px; white-space: nowrap; }
+  .list-item.income .amount { color: var(--income); }
+  .list-item.expense .amount { color: var(--expense); }
+
+  .actions { display: flex; gap: 4px; }
+  .actions button {
+    border: none; width: 30px; height: 30px; border-radius: 8px;
+    cursor: pointer; font-size: 13px; font-weight: bold;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .act-pay { background: rgba(5,150,105,0.15); color: var(--income); }
+  .act-edit { background: rgba(59,130,246,0.15); color: #3b82f6; }
+  .act-del { background: rgba(220,38,38,0.15); color: var(--expense); }
+
+  .empty {
+    text-align: center; padding: 24px 12px;
+    color: var(--muted); font-size: 12px;
+  }
+
+  .fab {
+    position: fixed; bottom: 20px; left: 20px;
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--primary); color: white; border: none;
+    font-size: 28px; cursor: pointer;
+    box-shadow: var(--shadow-lg);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100;
+  }
+
+  .modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+    display: none; align-items: flex-end; z-index: 200;
+  }
+  .modal.open { display: flex; }
+  .modal-content {
+    background: var(--card); width: 100%;
+    border-radius: 20px 20px 0 0; padding: 18px;
+    max-height: 92vh; overflow-y: auto;
+    animation: slideUp 0.25s ease-out;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal-content h3 { margin-bottom: 14px; color: var(--primary); font-size: 15px; }
+
+  .box-chip {
+    display: inline-block; padding: 4px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; margin: 2px;
+  }
+  .box-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 9px 12px; background: var(--input-bg); border-radius: 10px;
+    margin-bottom: 6px; font-size: 12px;
+  }
+  .box-row .name { font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .box-row .bal { color: var(--primary); font-weight: 700; }
+
+  .allocation-row {
+    display: flex; gap: 6px; align-items: center; margin-bottom: 8px;
+  }
+  .allocation-row select { flex: 2; margin-bottom: 0; }
+  .allocation-row input { flex: 1.5; margin-bottom: 0; }
+  .allocation-row button {
+    background: var(--expense); color: white; border: none;
+    width: 34px; height: 34px; border-radius: 8px;
+    cursor: pointer; font-weight: bold; flex-shrink: 0;
+  }
+
+  .telegram-bar {
+    position: fixed; bottom: 0; right: 0; left: 0;
+    background: var(--card); border-top: 1px solid var(--border);
+    padding: 8px 12px; display: flex; gap: 8px; align-items: center;
+    z-index: 90; padding-bottom: max(8px, env(safe-area-inset-bottom));
+  }
+  .telegram-bar .tg-id {
+    flex: 1; background: var(--input-bg); padding: 9px 12px;
+    border-radius: 10px; font-size: 12px; color: var(--muted);
+    text-align: center; font-family: monospace; direction: ltr;
+  }
+  .telegram-bar button {
+    border: none; padding: 9px 12px; border-radius: 10px;
+    font-family: inherit; font-size: 12px; font-weight: 600;
+    cursor: pointer; white-space: nowrap;
+  }
+  .tg-copy { background: var(--border); color: var(--text); }
+  .tg-send { background: #229ED9; color: white; }
+
+  .stat-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+    text-align: center; margin-bottom: 10px;
+  }
+  .stat-cell { padding: 10px; border-radius: 10px; }
+  .stat-cell .lbl { font-size: 11px; margin-bottom: 4px; }
+  .stat-cell .val { font-size: 13px; font-weight: 700; }
+  .stat-in { background: rgba(5,150,105,0.1); }
+  .stat-in .lbl, .stat-in .val { color: var(--income); }
+  .stat-ex { background: rgba(220,38,38,0.1); }
+  .stat-ex .lbl, .stat-ex .val { color: var(--expense); }
+  .stat-bal { background: rgba(15,118,110,0.1); }
+  .stat-bal .lbl, .stat-bal .val { color: var(--primary); }
+
+  .toast {
+    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+    background: var(--text); color: var(--card); padding: 10px 18px;
+    border-radius: 10px; font-size: 12px; z-index: 999;
+    opacity: 0; transition: opacity 0.3s; pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+
+  .backup-row { display: flex; gap: 8px; }
+  .backup-row .btn { font-size: 12px; padding: 10px; }
+
+  .progress-bar {
+    height: 6px; background: var(--border); border-radius: 3px;
+    overflow: hidden; margin-top: 6px;
+  }
+  .progress-bar .fill {
+    height: 100%; background: var(--primary-light);
+    transition: width 0.3s;
+  }
+</style>
+</head>
+<body data-theme="light">
+
+<header>
+  <div class="info">
+    <h1>💰 دستیار مالی</h1>
+    <div class="date" id="todayDate">—</div>
+  </div>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">🌙</button>
+</header>
+
+<div class="cards">
+  <div class="card income">
+    <div class="label">درآمد امروز</div>
+    <div class="value" id="todayIncome">۰</div>
+  </div>
+  <div class="card expense">
+    <div class="label">هزینه امروز</div>
+    <div class="value" id="todayExpense">۰</div>
+  </div>
+  <div class="card total">
+    <div class="label">موجودی کل</div>
+    <div class="value" id="totalBalance">۰ تومان</div>
+  </div>
+</div>
+
+<div class="tabs-main">
+  <button class="active" data-panel="dash">📊 داشبورد</button>
+  <button data-panel="boxes">📦 باکس‌ها</button>
+  <button data-panel="installments">📋 قسط‌ها</button>
+  <button data-panel="trans">📝 تراکنش</button>
+  <button data-panel="settings">⚙️ تنظیمات</button>
+</div>
+
+<!-- ========== داشبورد ========== -->
+<div class="panel active" id="panel-dash">
+  <div class="section">
+    <h2>📊 گزارش <span class="badge" id="reportLabel">امروز</span></h2>
+    <div class="tabs-main" style="margin-bottom:10px;">
+      <button class="active" data-report="today">امروز</button>
+      <button data-report="month">این ماه</button>
+      <button data-report="all">همه</button>
+    </div>
+    <div id="reportBox"></div>
+  </div>
+
+  <div class="section">
+    <h2>📦 خلاصه باکس‌ها</h2>
+    <div id="boxesSummary"></div>
+  </div>
+
+  <div class="section">
+    <h2>⏰ قسط‌های نزدیک</h2>
+    <div id="upcomingInstallments"></div>
+  </div>
+</div>
+
+<!-- ========== باکس‌ها ========== -->
+<div class="panel" id="panel-boxes">
+  <div class="section">
+    <h2>📦 باکس‌های من <span class="badge" id="boxesCount">0</span></h2>
+    <div id="boxesList"></div>
+  </div>
+
+  <div class="section">
+    <h2>➕ افزودن باکس جدید</h2>
+    <label>نام باکس</label>
+    <input type="text" id="boxName" placeholder="مثلاً: اجاره، پس‌انداز، شخصی">
+    <label>درصد تقسیم خودکار (۰ تا ۱۰۰)</label>
+    <input type="number" id="boxPercent" placeholder="مثلاً: 30" min="0" max="100" inputmode="numeric">
+    <button class="btn btn-primary" onclick="addBox()">افزودن باکس</button>
+  </div>
+
+  <div class="section">
+    <h2>💵 واریز به باکس</h2>
+    <label>انتخاب باکس</label>
+    <select id="depositBox"></select>
+    <label>مبلغ (تومان)</label>
+    <input type="number" id="depositAmount" placeholder="مثلاً: 500000" inputmode="numeric">
+    <label>توضیحات (اختیاری)</label>
+    <input type="text" id="depositNote" placeholder="مثلاً: واریز دستی">
+    <button class="btn btn-primary" onclick="depositToBox()">واریز</button>
+  </div>
+</div>
+
+<!-- ========== قسط‌ها ========== -->
+<div class="panel" id="panel-installments">
+  <div class="section">
+    <h2>📋 لیست قسط‌ها <span class="badge" id="instCount">0</span></h2>
+    <div id="installmentsList"></div>
+  </div>
+</div>
+
+<!-- ========== تراکنش‌ها ========== -->
+<div class="panel" id="panel-trans">
+  <div class="section">
+    <h2>📝 تراکنش‌ها <span class="badge" id="transCount">0</span></h2>
+    <div class="tabs-main" style="margin-bottom:10px;">
+      <button class="active" data-filter="all">همه</button>
+      <button data-filter="income">درآمد</button>
+      <button data-filter="expense">هزینه</button>
+    </div>
+    <div id="transList"></div>
+  </div>
+</div>
+
+<!-- ========== تنظیمات ========== -->
+<div class="panel" id="panel-settings">
+  <div class="section">
+    <h2>💾 پشتیبان‌گیری</h2>
+    <div class="backup-row" style="margin-bottom:8px;">
+      <button class="btn btn-primary" onclick="exportData()">📤 خروجی گرفتن</button>
+      <button class="btn btn-outline" onclick="document.getElementById('importFile').click()">📥 بازیابی</button>
+    </div>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+    <div style="font-size:11px; color:var(--muted); text-align:center; margin-top:6px;">
+      فایل پشتیبان روی گوشی ذخیره می‌شود
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>🎨 تم برنامه</h2>
+    <div class="row">
+      <button class="btn btn-outline" onclick="setTheme('light')">☀️ روز</button>
+      <button class="btn btn-outline" onclick="setTheme('dark')">🌙 شب</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>📊 آمار کلی</h2>
+    <div class="stat-grid">
+      <div class="stat-cell stat-in">
+        <div class="lbl">کل درآمد</div>
+        <div class="val" id="statIncome">۰</div>
+      </div>
+      <div class="stat-cell stat-ex">
+        <div class="lbl">کل هزینه</div>
+        <div class="val" id="statExpense">۰</div>
+      </div>
+      <div class="stat-cell stat-bal">
+        <div class="lbl">مانده</div>
+        <div class="val" id="statBalance">۰</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>🗑️ حذف داده‌ها</h2>
+    <button class="btn btn-danger" onclick="clearAll()">حذف تمام داده‌ها</button>
+    <div style="font-size:11px; color:var(--muted); text-align:center; margin-top:6px;">
+      ⚠️ قبل از حذف، پشتیبان بگیرید
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>ℹ️ درباره برنامه</h2>
+    <div style="font-size:12px; color:var(--muted); line-height:1.8; text-align:center;">
+      دستیار مالی نسخه ۲.۰<br>
+      ساخته شده با ❤️ برای مدیریت بهتر مالی
+    </div>
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="fab" onclick="openAddMenu()">+</button>
+
+<!-- نوار تلگرام -->
+<div class="telegram-bar">
+  <div class="tg-id" id="tgId">@YourTelegramID</div>
+  <button class="tg-copy" onclick="copyTgId()">کپی</button>
+  <button class="tg-send" onclick="sendToTelegram()">پیام</button>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ========== مودال‌ها ========== -->
+
+<!-- مودال منوی افزودن -->
+<div class="modal" id="modalMenu">
+  <div class="modal-content">
+    <h3>➕ چه چیزی می‌خواهید ثبت کنید؟</h3>
+    <button class="btn btn-primary" style="margin-bottom:8px;" onclick="openIncome()">💵 ثبت درآمد</button>
+    <button class="btn btn-danger" style="margin-bottom:8px;" onclick="openExpense()">💸 ثبت هزینه</button>
+    <button class="btn btn-outline" style="margin-bottom:8px;" onclick="openInstallment()">📋 ثبت قسط</button>
+    <button class="btn btn-secondary" onclick="closeModal('modalMenu')">انصراف</button>
+  </div>
+</div>
+
+<!-- مودال ثبت درآمد -->
+<div class="modal" id="modalIncome">
+  <div class="modal-content">
+    <h3 id="incomeTitle">💵 ثبت درآمد</h3>
+    <label>عنوان</label>
+    <input type="text" id="incTitle" placeholder="مثلاً: فروش، حقوق">
+    <label>مبلغ (تومان)</label>
+    <input type="number" id="incAmount" placeholder="مثلاً: 500000" inputmode="numeric">
+    <label>تاریخ</label>
+    <input type="text" id="incDate" readonly>
+
+    <label>نحوه تقسیم‌بندی</label>
+    <select id="incSplitMode" onchange="onSplitModeChange()">
+      <option value="auto">🔄 خودکار (بر اساس درصد باکس‌ها)</option>
+      <option value="manual">✋ دستی</option>
+      <option value="none">❌ بدون تقسیم</option>
+    </select>
+
+    <div id="manualSplitBox" style="display:none;">
+      <div id="allocationsList"></div>
+      <button class="btn btn-secondary" style="margin-bottom:10px;" onclick="addAllocationRow()">+ افزودن ردیف</button>
+    </div>
+
+    <div id="autoSplitPreview" style="font-size:12px; color:var(--muted); margin-bottom:10px;"></div>
+
+    <button class="btn btn-primary" onclick="saveIncome()">ذخیره درآمد</button>
+    <button class="btn btn-secondary" style="margin-top:6px;" onclick="closeModal('modalIncome')">انصراف</button>
+  </div>
+</div>
+
+<!-- مودال ثبت هزینه -->
+<div class="modal" id="modalExpense">
+  <div class="modal-content">
+    <h3>💸 ثبت هزینه</h3>
+    <label>عنوان</label>
+    <input type="text" id="expTitle" placeholder="مثلاً: خرید، قبض">
+    <label>مبلغ (تومان)</label>
+    <input type="number" id="expAmount" placeholder="مثلاً: 100000" inputmode="numeric">
+    <label>تاریخ</label>
+    <input type="text" id="expDate" readonly>
+    <label>پرداخت از باکس (اختیاری)</label>
+    <select id="expBox">
+      <option value="">— بدون باکس —</option>
+    </select>
+    <button class="btn btn-danger" onclick="saveExpense()">ذخیره هزینه</button>
+    <button class="btn btn-secondary" style="margin-top:6px;" onclick="closeModal('modalExpense')">انصراف</button>
+  </div>
+</div>
+
+<!-- مودال قسط -->
+<div class="modal" id="modalInstallment">
+  <div class="modal-content">
+    <h3 id="instModalTitle">📋 ثبت قسط</h3>
+    <input type="hidden" id="instEditId">
+    <label>عنوان قسط</label>
+    <input type="text" id="instTitle" placeholder="مثلاً: قسط ماشین، وام بانک">
+    <label>مبلغ قسط (تومان)</label>
+    <input type="number" id="instAmount" placeholder="مثلاً: 2000000" inputmode="numeric">
+    <label>تاریخ سررسید (شمسی - مثال: 1403/08/15)</label>
+    <input type="text" id="instDate" placeholder="1403/08/15" inputmode="numeric">
+    <label>تعداد اقساط (اختیاری)</label>
+    <input type="number" id="instCount" placeholder="مثلاً: 12" inputmode="numeric">
+    <label>توضیحات</label>
+    <input type="text" id="instNote" placeholder="اختیاری">
+    <button class="btn btn-primary" onclick="saveInstallment()">ذخیره</button>
+    <button class="btn btn-secondary" style="margin-top:6px;" onclick="closeModal('modalInstallment')">انصراف</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ============================================================
+// تنظیمات اولیه
+// ============================================================
+const STORAGE_KEY = 'fa_v2_data';
+const TG_ID_DEFAULT = '@YourTelegramID';
+
+// ============================================================
+// تاریخ شمسی
+// ============================================================
+const MONTHS_FA = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+
+function toJalali(gy, gm, gd) {
+  const g_d_m = [0,31,59,90,120,151,181,212,243,273,304,334];
+  let jy = (gy <= 1600) ? 0 : 979;
+  gy -= (gy <= 1600) ? 621 : 1600;
+  const gy2 = (gm > 2) ? (gy + 1) : gy;
+  let days = (365 * gy) + Math.floor((gy2 + 3) / 4) - Math.floor((gy2 + 99) / 100)
+           + Math.floor((gy2 + 399) / 400) - 80 + gd + g_d_m[gm - 1];
+  jy += 33 * Math.floor(days / 12053);
+  days %= 12053;
+  jy += 4 * Math.floor(days / 1461);
+  days %= 1461;
+  if (days > 365) { jy += Math.floor((days - 1) / 365); days = (days - 1) % 365; }
+  const jm = (days < 186) ? 1 + Math.floor(days / 31) : 7 + Math.floor((days - 186) / 30);
+  const jd = 1 + ((days < 186) ? (days % 31) : ((days - 186) % 30));
+  return [jy, jm, jd];
+}
+
+function getJalaliString(date = new Date()) {
+  const [jy, jm, jd] = toJalali(date.getFullYear(), date.getMonth() + 1, date.getDate());
+  return `${jd} ${MONTHS_FA[jm - 1]} ${jy}`;
+}
+
+function getJalaliKey(date = new Date()) {
+  const [jy, jm, jd] = toJalali(date.getFullYear(), date.getMonth() + 1, date.getDate());
+  return `${jy}/${String(jm).padStart(2,'0')}/${String(jd).padStart(2,'0')}`;
+}
+
+function getJalaliMonthKey(date = new Date()) {
+  const [jy, jm] = toJalali(date.getFullYear(), date.getMonth() + 1, date.getDate());
+  return `${jy}/${String(jm).padStart(2,'0')}`;
+}
+
+// مرتب‌سازی کلید شمسی
+function compareJalaliKeys(a, b) {
+  const pa = a.split('/').map(Number);
+  const pb = b.split('/').map(Number);
+  if (pa[0] !== pb[0]) return pa[0] - pb[0];
+  if (pa[1] !== pb[1]) return pa[1] - pb[1];
+  return pa[2] - pb[2];
+}
+
+// ============================================================
+// فرمت اعداد
+// ============================================================
+function formatToman(n) {
+  return Number(n || 0).toLocaleString('fa-IR') + ' تومان';
+}
+function formatNum(n) {
+  return Number(n || 0).toLocaleString('fa-IR');
+}
+function parseAmount(str) {
+  const cleaned = String(str || '').replace(/[^\d]/g, '');
+  return parseFloat(cleaned) || 0;
+}
+
+// ============================================================
+// ذخیره‌سازی
+// ============================================================
+let state = {
+  transactions: [],
+  boxes: [],
+  installments: [],
+  theme: 'light',
+  tgId: TG_ID_DEFAULT
+};
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      state = { ...state, ...parsed };
+    } else {
+      // مهاجرت از نسخه قدیمی
+      const oldRaw = localStorage.getItem('financial_assistant_data');
+      if (oldRaw) {
+        const old = JSON.parse(oldRaw);
+        state.transactions = old.map(t => ({
+          id: t.id,
+          type: t.type,
+          title: t.title || '',
+          amount: t.amount,
+          jalaliKey: t.jalaliKey,
+          jalaliStr: t.jalaliStr,
+          timestamp: t.timestamp
+        }));
+      }
+    }
+  } catch (e) { console.warn('Load error', e); }
+}
+
+// ذخیره با debounce برای بهینه‌سازی
+let saveTimeout;
+function saveState(immediate = false) {
+  if (saveTimeout) clearTimeout(saveTimeout);
+  const doSave = () => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      toast('خطا در ذخیره‌سازی');
+    }
+  };
+  if (immediate) doSave();
+  else saveTimeout = setTimeout(doSave, 250);
+}
+
+// ============================================================
+// Toast
+// ============================================================
+let toastTimeout;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  if (toastTimeout) clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+// ============================================================
+// تم
+// ============================================================
+function setTheme(theme) {
+  state.theme = theme;
+  document.body.setAttribute('data-theme', theme);
+  document.getElementById('themeBtn').textContent = theme === 'dark' ? '☀️' : '🌙';
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', theme === 'dark' ? '#0f172a' : '#0f766e');
+  saveState();
+}
+function toggleTheme() {
+  setTheme(state.theme === 'dark' ? 'light' : 'dark');
+}
+
+// ============================================================
+// مودال‌ها
+// ============================================================
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// بستن مودال با کلیک روی پس‌زمینه
+document.querySelectorAll('.modal').forEach(m => {
+  m.addEventListener('click', e => {
+    if (e.target === m) m.classList.remove('open');
+  });
+});
+
+// ============================================================
+// تب‌های اصلی
+// ============================================================
+document.querySelectorAll('.tabs-main button[data-panel]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tabs-main button[data-panel]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// تب‌های گزارش
+document.querySelectorAll('.tabs-main button[data-report]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tabs-main button[data-report]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentReport = btn.dataset.report;
+    renderReport();
+  });
+});
+
+// فیلتر تراکنش‌ها
+let currentFilter = 'all';
+document.querySelectorAll('.tabs-main button[data-filter]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tabs-main button[data-filter]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    renderTransactions();
+  });
+});
+
+// ============================================================
+// مودال افزودن
+// ============================================================
+function openAddMenu() { openModal('modalMenu'); }
+
+function openIncome() {
+  closeModal('modalMenu');
+  document.getElementById('incTitle').value = '';
+  document.getElementById('incAmount').value = '';
+  document.getElementById('incDate').value = getJalaliString();
+  document.getElementById('incSplitMode').value = 'auto';
+  document.getElementById('manualSplitBox').style.display = 'none';
+  document.getElementById('allocationsList').innerHTML = '';
+  updateAutoSplitPreview();
+  openModal('modalIncome');
+}
+
+function openExpense() {
+  closeModal('modalMenu');
+  document.getElementById('expTitle').value = '';
+  document.getElementById('expAmount').value = '';
+  document.getElementById('expDate').value = getJalaliString();
+  refreshExpBoxSelect();
+  openModal('modalExpense');
+}
+
+function openInstallment(editId) {
+  closeModal('modalMenu');
+  document.getElementById('instModalTitle').textContent = editId ? '✏️ ویرایش قسط' : '📋 ثبت قسط';
+  document.getElementById('instEditId').value = editId || '';
+  if (editId) {
+    const inst = state.installments.find(i => i.id === editId);
+    if (inst) {
+      document.getElementById('instTitle').value = inst.title;
+      document.getElementById('instAmount').value = inst.amount;
+      document.getElementById('instDate').value = inst.dueDate;
+      document.getElementById('instCount').value = inst.totalCount || '';
+      document.getElementById('instNote').value = inst.note || '';
+    }
+  } else {
+    document.getElementById('instTitle').value = '';
+    document.getElementById('instAmount').value = '';
+    document.getElementById('instDate').value = '';
+    document.getElementById('instCount').value = '';
+    document.getElementById('instNote').value = '';
+  }
+  openModal('modalInstallment');
+}
+
+// ============================================================
+// باکس‌ها
+// ============================================================
+function addBox() {
+  const name = document.getElementById('boxName').value.trim();
+  const percent = parseFloat(document.getElementById('boxPercent').value) || 0;
+  if (!name) { toast('نام باکس را وارد کنید'); return; }
+  if (state.boxes.some(b => b.name === name)) { toast('این نام قبلاً استفاده شده'); return; }
+
+  state.boxes.push({
+    id: 'b_' + Date.now(),
+    name,
+    percent: Math.max(0, Math.min(100, percent)),
+    balance: 0
+  });
+  document.getElementById('boxName').value = '';
+  document.getElementById('boxPercent').value = '';
+  saveState(true);
+  renderAll();
+  toast('باکس اضافه شد');
+}
+
+function deleteBox(id) {
+  if (!confirm('این باکس حذف شود؟ موجودی آن به کل برمی‌گردد.')) return;
+  state.boxes = state.boxes.filter(b => b.id !== id);
+  saveState(true);
+  renderAll();
+  toast('باکس حذف شد');
+}
+
+function editBox(id) {
+  const box = state.boxes.find(b => b.id === id);
+  if (!box) return;
+  const newName = prompt('نام جدید باکس:', box.name);
+  if (newName === null) return;
+  if (!newName.trim()) { toast('نام نمی‌تواند خالی باشد'); return; }
+  const newPercent = prompt('درصد تقسیم خودکار (۰ تا ۱۰۰):', box.percent);
+  if (newPercent === null) return;
+  box.name = newName.trim();
+  box.percent = Math.max(0, Math.min(100, parseFloat(newPercent) || 0));
+  saveState(true);
+  renderAll();
+  toast('باکس ویرایش شد');
+}
+
+function depositToBox() {
+  const boxId = document.getElementById('depositBox').value;
+  const amount = parseAmount(document.getElementById('depositAmount').value);
+  const note = document.getElementById('depositNote').value.trim();
+
+  if (!boxId) { toast('باکس را انتخاب کنید'); return; }
+  if (amount <= 0) { toast('مبلغ معتبر وارد کنید'); return; }
+
+  const box = state.boxes.find(b => b.id === boxId);
+  if (!box) return;
+  box.balance += amount;
+
+  // ثبت به عنوان تراکنش نوع انتقال
+  const now = new Date();
+  state.transactions.push({
+    id: Date.now(),
+    type: 'transfer',
+    title: `واریز به ${box.name}${note ? ' - ' + note : ''}`,
+    amount,
+    jalaliKey: getJalaliKey(now),
+    jalaliStr: getJalaliString(now),
+    timestamp: now.getTime(),
+    boxId: box.id
+  });
+
+  document.getElementById('depositAmount').value = '';
+  document.getElementById('depositNote').value = '';
+  saveState(true);
+  renderAll();
+  toast('واریز انجام شد');
+}
+
+// ============================================================
+// تقسیم خودکار / دستی
+// ============================================================
+function onSplitModeChange() {
+  const mode = document.getElementById('incSplitMode').value;
+  const manualBox = document.getElementById('manualSplitBox');
+  if (mode === 'manual') {
+    manualBox.style.display = 'block';
+    if (document.getElementById('allocationsList').children.length === 0) {
+      addAllocationRow();
+    }
+  } else {
+    manualBox.style.display = 'none';
+  }
+  updateAutoSplitPreview();
+}
+
+function updateAutoSplitPreview() {
+  const amount = parseAmount(document.getElementById('incAmount').value);
+  const preview = document.getElementById('autoSplitPreview');
+  const mode = document.getElementById('incSplitMode').value;
+  if (mode !== 'auto' || amount <= 0 || state.boxes.length === 0) {
+    preview.textContent = '';
+    return;
+  }
+  const totalPercent = state.boxes.reduce((s, b) => s + (b.percent || 0), 0);
+  let html = '<div style="font-weight:600; color:var(--primary); margin-bottom:4px;">پیش‌نمایش تقسیم:</div>';
+  let sum = 0;
+  state.boxes.forEach(b => {
+    const share = totalPercent > 0 ? Math.floor(amount * (b.percent / totalPercent)) : 0;
+    sum += share;
+    if (share > 0) {
+      html += `<div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:3px;">
+        <span>${escapeHtml(b.name)} (${b.percent}%)</span>
+        <span>${formatNum(share)}</span>
+      </div>`;
+    }
+  });
+  const remaining = amount - sum;
+  if (remaining > 0) {
+    html += `<div style="display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-top:4px; border-top:1px dashed var(--border); padding-top:4px;">
+      <span>باقی‌مانده (بدون باکس)</span>
+      <span>${formatNum(remaining)}</span>
+    </div>`;
+  }
+  preview.innerHTML = html;
+}
+
+function addAllocationRow() {
+  const container = document.getElementById('allocationsList');
+  const row = document.createElement('div');
+  row.className = 'allocation-row';
+  const options = state.boxes.map(b => `<option value="${b.id}">${escapeHtml(b.name)}</option>`).join('');
+  row.innerHTML = `
+    <select class="alloc-box">${options || '<option value="">باکس ندارید</option>'}</select>
+    <input type="number" class="alloc-amount" placeholder="مبلغ" inputmode="numeric">
+    <button onclick="this.parentElement.remove()">×</button>
+  `;
+  container.appendChild(row);
+}
+
+// ============================================================
+// ذخیره درآمد
+// ============================================================
+function saveIncome() {
+  const title = document.getElementById('incTitle').value.trim() || 'درآمد';
+  const amount = parseAmount(document.getElementById('incAmount').value);
+  if (amount <= 0) { toast('مبلغ معتبر وارد کنید'); return; }
+
+  const now = new Date();
+  const mode = document.getElementById('incSplitMode').value;
+
+  // محاسبه تقسیم
+  const allocations = [];
+
+  if (mode === 'auto') {
+    const totalPercent = state.boxes.reduce((s, b) => s + (b.percent || 0), 0);
+    if (totalPercent > 0) {
+      state.boxes.forEach(b => {
+        const share = Math.floor(amount * (b.percent / totalPercent));
+        if (share > 0) allocations.push({ boxId: b.id, amount: share });
+      });
+    }
+  } else if (mode === 'manual') {
+    const rows = document.querySelectorAll('#allocationsList .allocation-row');
+    let totalAlloc = 0;
+    rows.forEach(row => {
+      const boxId = row.querySelector('.alloc-box').value;
+      const amt = parseAmount(row.querySelector('.alloc-amount').value);
+      if (boxId && amt > 0) {
+        totalAlloc += amt;
+        allocations.push({ boxId, amount: amt });
+      }
+    });
+    if (totalAlloc > amount) {
+      toast('مجموع تقسیم بیشتر از مبلغ درآمد است');
+      return;
+    }
+  }
+
+  // اعمال تقسیم
+  allocations.forEach(a => {
+    const box = state.boxes.find(b => b.id === a.boxId);
+    if (box) box.balance += a.amount;
+  });
+
+  // ثبت تراکنش
+  state.transactions.push({
+    id: Date.now(),
+    type: 'income',
+    title,
+    amount,
+    jalaliKey: getJalaliKey(now),
+    jalaliStr: getJalaliString(now),
+    timestamp: now.getTime(),
+    allocations
+  });
+
+  closeModal('modalIncome');
+  saveState(true);
+  renderAll();
+  toast('درآمد ثبت شد');
+}
+
+// ============================================================
+// ذخیره هزینه
+// ============================================================
+function saveExpense() {
+  const title = document.getElementById('expTitle').value.trim() || 'هزینه';
+  const amount = parseAmount(document.getElementById('expAmount').value);
+  const boxId = document.getElementById('expBox').value;
+
+  if (amount <= 0) { toast('مبلغ معتبر وارد کنید'); return; }
+
+  if (boxId) {
+    const box = state.boxes.find(b => b.id === boxId);
+    if (!box) { toast('باکس یافت نشد'); return; }
+    if (box.balance < amount) {
+      if (!confirm(`موجودی باکس "${box.name}" کافی نیست. ادامه می‌دهید؟`)) return;
+    }
+    box.balance -= amount;
+  }
+
+  const now = new Date();
+  state.transactions.push({
+    id: Date.now(),
+    type: 'expense',
+    title,
+    amount,
+    jalaliKey: getJalaliKey(now),
+    jalaliStr: getJalaliString(now),
+    timestamp: now.getTime(),
+    boxId: boxId || null
+  });
+
+  closeModal('modalExpense');
+  saveState(true);
+  renderAll();
+  toast('هزینه ثبت شد');
+}
+
+// ============================================================
+// قسط‌ها
+// ============================================================
+function saveInstallment() {
+  const editId = document.getElementById('instEditId').value;
+  const title = document.getElementById('instTitle').value.trim();
+  const amount = parseAmount(document.getElementById('instAmount').value);
+  const dueDate = document.getElementById('instDate').value.trim();
+  const totalCount = parseInt(document.getElementById('instCount').value) || 0;
+  const note = document.getElementById('instNote').value.trim();
+
+  if (!title) { toast('عنوان قسط را وارد کنید'); return; }
+  if (amount <= 0) { toast('مبلغ معتبر وارد کنید'); return; }
+  if (!/^\d{4}\/\d{1,2}\/\d{1,2}$/.test(dueDate)) {
+    toast('تاریخ را به صورت 1403/08/15 وارد کنید');
+    return;
+  }
+
+  if (editId) {
+    const inst = state.installments.find(i => i.id === editId);
+    if (inst) {
+      inst.title = title;
+      inst.amount = amount;
+      inst.dueDate = dueDate;
+      inst.totalCount = totalCount;
+      inst.note = note;
+    }
+    toast('قسط ویرایش شد');
+  } else {
+    state.installments.push({
+      id: 'i_' + Date.now(),
+      title,
+      amount,
+      dueDate,
+      totalCount,
+      paidCount: 0,
+      note,
+      paid: false,
+      paidDate: null,
+      createdAt: Date.now()
+    });
+    toast('قسط ثبت شد');
+  }
+
+  closeModal('modalInstallment');
+  saveState(true);
+  renderAll();
+}
+
+function payInstallment(id) {
+  const inst = state.installments.find(i => i.id === id);
+  if (!inst) return;
+
+  const boxId = prompt(
+    `پرداخت قسط "${inst.title}" - مبلغ ${formatNum(inst.amount)}\n\n` +
+    `ID باکس را وارد کنید (خالی = بدون باکس):\n` +
+    state.boxes.map(b => `${b.id} = ${b.name}`).join('\n')
+  );
+
+  // اگر کاربر انصراف داد
+  if (boxId === null) return;
+
+  // پرداخت از باکس اگر انتخاب شده
+  if (boxId && boxId.trim()) {
+    const box = state.boxes.find(b => b.id === boxId.trim());
+    if (box) {
+      if (box.balance < inst.amount) {
+        if (!confirm(`موجودی باکس کافی نیست. ادامه؟`)) return;
+      }
+      box.balance -= inst.amount;
+    }
+  }
+
+  inst.paid = true;
+  inst.paidDate = getJalaliString();
+  inst.paidCount = (inst.paidCount || 0) + 1;
+
+  // ثبت به عنوان هزینه
+  const now = new Date();
+  state.transactions.push({
+    id: Date.now(),
+    type: 'expense',
+    title: `پرداخت قسط: ${inst.title}`,
+    amount: inst.amount,
+    jalaliKey: getJalaliKey(now),
+    jalaliStr: getJalaliString(now),
+    timestamp: now.getTime(),
+    installmentId: inst.id
+  });
+
+  saveState(true);
+  renderAll();
+  toast('قسط پرداخت شد');
+}
+
+function unpayInstallment(id) {
+  const inst = state.installments.find(i => i.id === id);
+  if (!inst) return;
+  if (!confirm('لغو پرداخت این قسط؟')) return;
+  inst.paid = false;
+  inst.paidDate = null;
+  inst.paidCount = Math.max(0, (inst.paidCount || 1) - 1);
+  saveState(true);
+  renderAll();
+}
+
+function editInstallment(id) { openInstallment(id); }
+
+function deleteInstallment(id) {
+  if (!confirm('این قسط حذف شود؟')) return;
+  state.installments = state.installments.filter(i => i.id !== id);
+  saveState(true);
+  renderAll();
+  toast('قسط حذف شد');
+}
+
+// ============================================================
+// حذف تراکنش
+// ============================================================
+function deleteTransaction(id) {
+  if (!confirm('این تراکنش حذف شود؟')) return;
+  const tx = state.transactions.find(t => t.id === id);
+  if (tx) {
+    // برگرداندن اثر روی باکس‌ها
+    if (tx.type === 'income' && tx.allocations) {
+      tx.allocations.forEach(a => {
+        const box = state.boxes.find(b => b.id === a.boxId);
+        if (box) box.balance -= a.amount;
+      });
+    }
+    if (tx.type === 'expense' && tx.boxId) {
+      const box = state.boxes.find(b => b.id === tx.boxId);
+      if (box) box.balance += tx.amount;
+    }
+    if (tx.type === 'transfer' && tx.boxId) {
+      const box = state.boxes.find(b => b.id === tx.boxId);
+      if (box) box.balance -= tx.amount;
+    }
+  }
+  state.transactions = state.transactions.filter(t => t.id !== id);
+  saveState(true);
+  renderAll();
+  toast('تراکنش حذف شد');
+}
+
+// ============================================================
+// رندر گزارش
+// ============================================================
+let currentReport = 'today';
+
+function renderReport() {
+  const todayKey = getJalaliKey();
+  const monthKey = getJalaliMonthKey();
+  let filtered, label;
+
+  if (currentReport === 'today') {
+    filtered = state.transactions.filter(t => t.jalaliKey === todayKey);
+    label = 'امروز';
+  } else if (currentReport === 'month') {
+    filtered = state.transactions.filter(t => t.jalaliKey.startsWith(monthKey));
+    label = 'این ماه';
+  } else {
+    filtered = state.transactions;
+    label = 'کل';
+  }
+
+  document.getElementById('reportLabel').textContent = label;
+
+  const inc = filtered.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+  const exp = filtered.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  const count = filtered.length;
+
+  document.getElementById('reportBox').innerHTML = `
+    <div class="stat-grid">
+      <div class="stat-cell stat-in">
+        <div class="lbl">درآمد</div>
+        <div class="val">${formatNum(inc)}</div>
+      </div>
+      <div class="stat-cell stat-ex">
+        <div class="lbl">هزینه</div>
+        <div class="val">${formatNum(exp)}</div>
+      </div>
+      <div class="stat-cell stat-bal">
+        <div class="lbl">مانده</div>
+        <div class="val">${formatNum(inc - exp)}</div>
+      </div>
+    </div>
+    <div style="text-align:center; font-size:11px; color:var(--muted); margin-top:6px;">
+      ${label} • ${formatNum(count)} تراکنش
+    </div>
+  `;
+}
+
+// ============================================================
+// رندر باکس‌ها
+// ============================================================
+function renderBoxes() {
+  const list = document.getElementById('boxesList');
+  const summary = document.getElementById('boxesSummary');
+  const count = state.boxes.length;
+  document.getElementById('boxesCount').textContent = count;
+
+  if (count === 0) {
+    list.innerHTML = '<div class="empty">هنوز باکسی نساخته‌اید</div>';
+    summary.innerHTML = '<div class="empty">باکسی وجود ندارد</div>';
+    refreshBoxSelects();
+    return;
+  }
+
+  list.innerHTML = state.boxes.map(b => `
+    <div class="box-row">
+      <div class="name">
+        ${escapeHtml(b.name)}
+        <span style="font-size:10px; color:var(--muted);">${b.percent}%</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:6px;">
+        <span class="bal">${formatNum(b.balance)}</span>
+        <button class="act-edit" style="width:26px;height:26px;border:none;border-radius:6px;cursor:pointer;" onclick="editBox('${b.id}')">✏️</button>
+        <button class="act-del" style="width:26px;height:26px;border:none;border-radius:6px;cursor:pointer;" onclick="deleteBox('${b.id}')">×</button>
+      </div>
+    </div>
+  `).join('');
+
+  summary.innerHTML = state.boxes.map(b => `
+    <div class="box-row">
+      <div class="name">${escapeHtml(b.name)}</div>
+      <div class="bal">${formatNum(b.balance)} تومان</div>
+    </div>
+  `).join('');
+
+  refreshBoxSelects();
+}
+
+function refreshBoxSelects() {
+  const opts = state.boxes.map(b => `<option value="${b.id}">${escapeHtml(b.name)}</option>`).join('');
+  const dep = document.getElementById('depositBox');
+  if (dep) dep.innerHTML = opts || '<option value="">باکسی وجود ندارد</option>';
+  refreshExpBoxSelect();
+}
+
+function refreshExpBoxSelect() {
+  const sel = document.getElementById('expBox');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">— بدون باکس —</option>' +
+    state.boxes.map(b => `<option value="${b.id}">${escapeHtml(b.name)} (${formatNum(b.balance)})</option>`).join('');
+}
+
+// ============================================================
+// رندر قسط‌ها
+// ============================================================
+function renderInstallments() {
+  const list = document.getElementById('installmentsList');
+  const count = state.installments.length;
+  document.getElementById('instCount').textContent = count;
+
+  if (count === 0) {
+    list.innerHTML = '<div class="empty">هنوز قسطی ثبت نشده است</div>';
+    document.getElementById('upcomingInstallments').innerHTML = '<div class="empty">قسطی نزدیک نیست</div>';
+    return;
+  }
+
+  const todayKey = getJalaliKey();
+  const sorted = [...state.installments].sort((a, b) => compareJalaliKeys(a.dueDate, b.dueDate));
+
+  list.innerHTML = sorted.map(inst => {
+    const overdue = !inst.paid && compareJalaliKeys(inst.dueDate, todayKey) < 0;
+    const cls = inst.paid ? 'paid' : (overdue ? 'overdue' : '');
+    const statusText = inst.paid
+      ? `✅ پرداخت شده در ${inst.paidDate}`
+      : (overdue ? '⚠️ سررسید گذشته' : `📅 سررسید: ${inst.dueDate}`);
+    return `
+      <div class="list-item ${cls}" style="border-right-color: ${inst.paid ? 'var(--income)' : (overdue ? '#f59e0b' : 'var(--expense)')}">
+        <div class="info">
+          <div class="title">${escapeHtml(inst.title)}</div>
+          <div class="date">${statusText}</div>
+          ${inst.note ? `<div class="date">📝 ${escapeHtml(inst.note)}</div>` : ''}
+          ${inst.totalCount ? `<div class="date">قسط ${inst.paidCount || 0} از ${inst.totalCount}</div>` : ''}
+        </div>
+        <div style="text-align:left;">
+          <div class="amount" style="color: var(--expense); font-weight:700; font-size:12px; margin-bottom:4px;">${formatNum(inst.amount)}</div>
+          <div class="actions">
+            ${!inst.paid ? `<button class="act-pay" title="پرداخت" onclick="payInstallment('${inst.id}')">💵</button>` : `<button class="act-pay" title="لغو پرداخت" onclick="unpayInstallment('${inst.id}')">↩️</button>`}
+            <button class="act-edit" title="ویرایش" onclick="editInstallment('${inst.id}')">✏️</button>
+            <button class="act-del" title="حذف" onclick="deleteInstallment('${inst.id}')">×</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // قسط‌های نزدیک (پرداخت نشده، مرتب شده)
+  const upcoming = sorted.filter(i => !i.paid).slice(0, 5);
+  const up = document.getElementById('upcomingInstallments');
+  if (upcoming.length === 0) {
+    up.innerHTML = '<div class="empty">قسط پرداخت‌نشده‌ای وجود ندارد</div>';
+  } else {
+    const total = upcoming.reduce((s, i) => s + i.amount, 0);
+    up.innerHTML = upcoming.map(i => {
+      const overdue = compareJalaliKeys(i.dueDate, todayKey) < 0;
+      return `<div class="box-row">
+        <div class="name">${overdue ? '⚠️' : '📅'} ${escapeHtml(i.title)}</div>
+        <div style="text-align:left;">
+          <div style="font-size:11px; color:${overdue ? '#f59e0b' : 'var(--muted)'};">${i.dueDate}</div>
+          <div style="font-size:12px; font-weight:700; color:var(--expense);">${formatNum(i.amount)}</div>
+        </div>
+      </div>`;
+    }).join('') + `<div style="text-align:center; font-size:11px; color:var(--muted); margin-top:8px;">سرجمع ۵ قسط نزدیک: <b style="color:var(--expense);">${formatNum(total)} تومان</b></div>`;
+  }
+}
+
+// ============================================================
+// رندر تراکنش‌ها
+// ============================================================
+function renderTransactions() {
+  const list = document.getElementById('transList');
+  let filtered = state.transactions;
+  if (currentFilter !== 'all') filtered = filtered.filter(t => t.type === currentFilter);
+
+  document.getElementById('transCount').textContent = filtered.length;
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty">تراکنشی یافت نشد</div>';
+    return;
+  }
+
+  const sorted = [...filtered].sort((a, b) => b.timestamp - a.timestamp).slice(0, 100);
+
+  list.innerHTML = sorted.map(t => {
+    let cls = t.type === 'income' ? 'income' : (t.type === 'expense' ? 'expense' : '');
+    let sign = t.type === 'income' ? '+' : (t.type === 'expense' ? '-' : '→');
+    let color = t.type === 'income' ? 'var(--income)' : (t.type === 'expense' ? 'var(--expense)' : 'var(--primary)');
+    return `
+      <div class="list-item ${cls}">
+        <div class="info">
+          <div class="title">${escapeHtml(t.title || (t.type === 'income' ? 'درآمد' : t.type === 'expense' ? 'هزینه' : 'انتقال'))}</div>
+          <div class="date">${t.jalaliStr}</div>
+        </div>
+        <div style="text-align:left;">
+          <div class="amount" style="color:${color}; font-weight:700; font-size:12px; margin-bottom:4px;">${sign} ${formatNum(t.amount)}</div>
+          <div class="actions">
+            <button class="act-del" title="حذف" onclick="deleteTransaction(${t.id})">×</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ============================================================
+// رندر کارت‌های بالا
+// ============================================================
+function renderTopCards() {
+  const todayKey = getJalaliKey();
+  const todayTx = state.transactions.filter(t => t.jalaliKey === todayKey);
+  const inc = todayTx.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+  const exp = todayTx.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+
+  document.getElementById('todayIncome').textContent = formatNum(inc);
+  document.getElementById('todayExpense').textContent = formatNum(exp);
+
+  const totalIncome = state.transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+  const totalExpense = state.transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  const boxesTotal = state.boxes.reduce((s, b) => s + b.balance, 0);
+
+  document.getElementById('totalBalance').textContent = formatToman(totalIncome - totalExpense);
+
+  document.getElementById('statIncome').textContent = formatNum(totalIncome);
+  document.getElementById('statExpense').textContent = formatNum(totalExpense);
+  document.getElementById('statBalance').textContent = formatNum(totalIncome - totalExpense);
+}
+
+// ============================================================
+// رندر کل
+// ============================================================
+let renderScheduled = false;
+function renderAll() {
+  if (renderScheduled) return;
+  renderScheduled = true;
+  requestAnimationFrame(() => {
+    renderScheduled = false;
+    try {
+      renderTopCards();
+      renderReport();
+      renderBoxes();
+      renderInstallments();
+      renderTransactions();
+      document.getElementById('todayDate').textContent = getJalaliString();
+    } catch (e) { console.error(e); }
+  });
+}
+
+// ============================================================
+// پشتیبان‌گیری
+// ============================================================
+function exportData() {
+  try {
+    const data = JSON.stringify(state, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const date = new Date();
+    const [jy, jm, jd] = toJalali(date.getFullYear(), date.getMonth() + 1, date.getDate());
+    a.href = url;
+    a.download = `financial-backup-${jy}-${String(jm).padStart(2,'0')}-${String(jd).padStart(2,'0')}.json`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast('فایل پشتیبان ذخیره شد');
+  } catch (e) {
+    toast('خطا در خروجی گرفتن');
+  }
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data || typeof data !== 'object') throw new Error('invalid');
+      if (!confirm('داده‌های فعلی با فایل پشتیبان جایگزین شوند؟')) return;
+      state = {
+        transactions: Array.isArray(data.transactions) ? data.transactions : [],
+        boxes: Array.isArray(data.boxes) ? data.boxes : [],
+        installments: Array.isArray(data.installments) ? data.installments : [],
+        theme: data.theme === 'dark' ? 'dark' : 'light',
+        tgId: data.tgId || TG_ID_DEFAULT
+      };
+      saveState(true);
+      setTheme(state.theme);
+      document.getElementById('tgId').textContent = state.tgId;
+      renderAll();
+      toast('بازیابی انجام شد');
+    } catch (err) {
+      toast('فایل نامعتبر است');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function clearAll() {
+  if (!confirm('همه داده‌ها حذف شوند؟ این عمل قابل بازگشت نیست.')) return;
+  if (!confirm('مطمئن هستید؟ پیشنهاد می‌شود اول پشتیبان بگیرید.')) return;
+  state.transactions = [];
+  state.boxes = [];
+  state.installments = [];
+  saveState(true);
+  renderAll();
+  toast('همه داده‌ها حذف شد');
+}
+
+// ============================================================
+// تلگرام
+// ============================================================
+function copyTgId() {
+  const txt = state.tgId;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(() => toast('کپی شد')).catch(() => fallbackCopy(txt));
+  } else {
+    fallbackCopy(txt);
+  }
+}
+function fallbackCopy(txt) {
+  const ta = document.createElement('textarea');
+  ta.value = txt;
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); toast('کپی شد'); } catch { toast('کپی نشد'); }
+  document.body.removeChild(ta);
+}
+function sendToTelegram() {
+  let id = state.tgId.replace('@', '').trim();
+  if (!id) { toast('آی‌دی تلگرام تنظیم نشده'); return; }
+  window.open(`https://t.me/${id}`, '_blank');
+}
+
+// ============================================================
+// Escape HTML
+// ============================================================
+function escapeHtml(str) {
+  return String(str || '').replace(/[&<>"']/g, m => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[m]));
+}
+
+// ============================================================
+// راه‌اندازی
+// ============================================================
+function init() {
+  loadState();
+  setTheme(state.theme || 'light');
+  document.getElementById('tgId').textContent = state.tgId;
+
+  // به‌روزرسانی خودکار تاریخ هر دقیقه (سبک)
+  setInterval(() => {
+    document.getElementById('todayDate').textContent = getJalaliString();
+  }, 60000);
+
+  // به‌روزرسانی پیش‌نمایش تقسیم خودکار وقتی مبلغ تغییر می‌کند
+  document.getElementById('incAmount').addEventListener('input', updateAutoSplitPreview);
+
+  renderAll();
+}
+
+// اجرا پس از بارگذاری کامل
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+</script>
+</body>
+</html>

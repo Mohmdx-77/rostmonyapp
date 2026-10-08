@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0f766e">
 <title>دستیار مالی</title>
+  <link rel="manifest" href="manifest.json">
 <style>
   :root {
     --bg: #f1f5f9;
@@ -1525,6 +1526,11 @@ if (document.readyState === 'loading') {
 } else {
   init();
 }
+</script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js');
+  }
 </script>
 </body>
 </html>
